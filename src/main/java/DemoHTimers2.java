@@ -1,6 +1,6 @@
 import com.ratherabstract.timing.prof.Profs;
 import com.ratherabstract.timing.prof_fmt.FormatAndPrintVisitor;
-import com.ratherabstract.timing.prof_fmt.plain1.StopwatchPlainFormatter;
+import com.ratherabstract.timing.prof_fmt.flamegraph.StopwatchFlamegraphFormatter;
 import com.ratherabstract.timing.swatch.IStopwatch;
 import com.ratherabstract.timing.swatch.Stopwatches;
 import com.ratherabstract.timing.swatch.Stopwatches.IStopwatchActivation;
@@ -131,7 +131,7 @@ public class DemoHTimers2 {
 //					r++;
 //				}
 
-				x += eval(coef, x);
+//				x += eval(coef, x);
 
 //				sw.start("foo" + (i % 2));
 //				sw.stop();
@@ -162,7 +162,7 @@ public class DemoHTimers2 {
 //					r++;
 //				}
 
-					x += eval(coef, x);
+//					x += eval(coef, x);
 
 //				sw.start("foo" + (i % 2));
 //				sw.stop();
@@ -211,7 +211,8 @@ public class DemoHTimers2 {
 
 		Util.work();
 
-		StopwatchesConfig.defaultVisitor = new FormatAndPrintVisitor(new StopwatchPlainFormatter(), System.out::println);
+		StopwatchesConfig.defaultVisitor = new FormatAndPrintVisitor(new StopwatchFlamegraphFormatter(), System.out::println);
+//		StopwatchesConfig.defaultVisitor = new FormatAndPrintVisitor(new StopwatchPlainFormatter(), System.out::println);
 		StopwatchesConfig.defaultEnabledPredicate = (_any) -> true;
 
 		try (IStopwatchActivation activation = Stopwatches.activate("DemoHTimers2.main", null)) {
