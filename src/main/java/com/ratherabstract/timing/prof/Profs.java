@@ -1,45 +1,52 @@
 package com.ratherabstract.timing.prof;
 
+import com.ratherabstract.timing.swatch.IStopwatch;
+import com.ratherabstract.timing.swatch.Stopwatches;
+
 import java.util.function.Supplier;
 
 /**
- * Wall clock profiling utility methods. Try to not use them.
+ * Wall clock profiling utility methods. Allow to save some wording for sections that can throw exceptions.
  */
 public class Profs {
 
-	public static void profiling(ClockProfiler<?> timer, String tag, Runnable code) {
-		timer.start(tag);
+	public static void profiling(String tag, Runnable code) {
+		IStopwatch sw = Stopwatches.get();
+		sw.start(tag);
 		try {
 			code.run();
 		} finally {
-			timer.stop();
+			sw.stop();
 		}
 	}
 
-	public static <X extends Exception> void profilingX(ClockProfiler<?> timer, String tag, RunnableX<X> code) throws X {
-		timer.start(tag);
+	public static <X extends Exception> void profilingX(String tag, RunnableX<X> code) throws X {
+		IStopwatch sw = Stopwatches.get();
+		sw.start(tag);
 		try {
 			code.run();
 		} finally {
-			timer.stop();
+			sw.stop();
 		}
 	}
 
-	public static <T> T profiling(ClockProfiler<?> timer, String tag, Supplier<T> code) {
-		timer.start(tag);
+	public static <T> T profiling(String tag, Supplier<T> code) {
+		IStopwatch sw = Stopwatches.get();
+		sw.start(tag);
 		try {
 			return code.get();
 		} finally {
-			timer.stop();
+			sw.stop();
 		}
 	}
 
-	public static <T, X extends Exception> T profilingX(ClockProfiler<?> timer, String tag, SupplierX<T, X> code) throws X {
-		timer.start(tag);
+	public static <T, X extends Exception> T profilingX(String tag, SupplierX<T, X> code) throws X {
+		IStopwatch sw = Stopwatches.get();
+		sw.start(tag);
 		try {
 			return code.get();
 		} finally {
-			timer.stop();
+			sw.stop();
 		}
 	}
 

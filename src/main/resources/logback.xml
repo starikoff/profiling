@@ -13,4 +13,8 @@
 	<logger name="DemoHTimers1" level="TRACE" additivity="false">
 		<appender-ref ref="CONSOLE" />
 	</logger>
+
+	<logger name="DemoStopwatches1" level="TRACE" additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
 </configuration>

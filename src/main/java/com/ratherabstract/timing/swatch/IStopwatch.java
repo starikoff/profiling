@@ -13,12 +13,10 @@ public interface IStopwatch {
 	IStopwatch NO_WATCH = new IStopwatch() {
 		@Override
 		public void start(String tag, int iterationsCount) {
-
 		}
 
 		@Override
 		public void stop() {
-
 		}
 	};
 

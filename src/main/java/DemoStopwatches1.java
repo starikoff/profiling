@@ -1,10 +1,12 @@
+import com.ratherabstract.timing.prof_fmt.FormatAndPrintVisitor;
+import com.ratherabstract.timing.prof_fmt.plain1.StopwatchPlainFormatter;
+import com.ratherabstract.timing.swatch.IStopwatch;
+import com.ratherabstract.timing.swatch.Stopwatches;
+import com.ratherabstract.timing.swatch.Stopwatches.IStopwatchActivation;
+import com.ratherabstract.timing.swatch.StopwatchesConfig;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.ratherabstract.timing.swatch.IStopwatch;
-import com.ratherabstract.timing.swatch.RealStopwatch;
-import com.ratherabstract.timing.swatch_fmt.StopwatchXmlFmtUtils;
-import com.ratherabstract.timing.swatch.Stopwatches;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.Optional;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -70,68 +71,51 @@ public class DemoStopwatches1 {
 	}
 
 	public static void work() {
-		Optional<RealStopwatch> swatchOpt = Optional.empty();
-		if (log.isTraceEnabled()) {
-			swatchOpt = Stopwatches.installIfNone();
-		}
-		IStopwatch swatch = Stopwatches.get();
-		swatch.start("work()");
+		try (IStopwatchActivation swatchOpt = Stopwatches.activate("work()", null, (_x) -> log.isTraceEnabled())) {
+			IStopwatch swatch = swatchOpt.stopwatch();
 
-		swatch.start("loop1");
-		for (int i = 0; i < 1e3; i++) {
-			swatch.start("loop2");
-			swatch.start("loop3", (int) 1e3);
-			for (int j = 0; j < 1e3; j++) {
-				if ((long) i + j == 3e9) {
-					System.out.println("impossible!");
+			swatch.start("loop1");
+			for (int i = 0; i < 1e3; i++) {
+				swatch.start("loop2");
+				swatch.start("loop3", (int) 1e3);
+				for (int j = 0; j < 1e3; j++) {
+					if ((long) i + j == 3e9) {
+						System.out.println("impossible!");
+					}
 				}
+				swatch.stop();
+				swatch.stop();
 			}
-			swatch.stop();
 			swatch.stop();
 		}
-		swatch.stop();
+	}
 
-		swatch.stop();
-		swatchOpt.ifPresent(s -> {
-			s.complete();
-			if (log.isTraceEnabled()) {
-				log.trace(System.lineSeparator() + StopwatchXmlFmtUtils.dumpXML(s));
-			}
-		});
+	static {
+		StopwatchesConfig.defaultVisitor = new FormatAndPrintVisitor(new StopwatchPlainFormatter(), System.out::println);
 	}
 
 	public static void main(String[] args) throws IOException {
-		Optional<RealStopwatch> swatchOpt = Optional.empty();
-		if (log.isTraceEnabled()) {
-			swatchOpt = Stopwatches.installIfNone();
+		try (IStopwatchActivation swatchOpt = Stopwatches.activate("DemoStopwatches1.main", null, (_x) -> log.isTraceEnabled())) {
+			IStopwatch swatch = swatchOpt.stopwatch();
+			swatch.start("open connection");
+			URLConnection conn = new URL("https://edition.cnn.com/").openConnection();
+			swatch.stop();
+
+			swatch.start("getInputStream");
+			InputStream in = conn.getInputStream();
+			swatch.stop();
+
+			swatch.start("copyStream");
+			String bla = IOUtils.toString(in, StandardCharsets.UTF_8);
+			swatch.stop();
+
+			swatch.start("print");
+			System.out.println(bla);
+			swatch.stop();
+
+			work();
+
+			swatch.stop();
 		}
-		IStopwatch swatch = Stopwatches.get();
-		swatch.start("DemoStopwatches1.main");
-
-		swatch.start("open connection");
-		URLConnection conn = new URL("https://edition.cnn.com/").openConnection();
-		swatch.stop();
-
-		swatch.start("getInputStream");
-		InputStream in = conn.getInputStream();
-		swatch.stop();
-
-		swatch.start("copyStream");
-		String bla = IOUtils.toString(in, StandardCharsets.UTF_8);
-		swatch.stop();
-
-		swatch.start("print");
-		System.out.println(bla);
-		swatch.stop();
-
-		work();
-
-		swatch.stop();
-		swatchOpt.ifPresent(s -> {
-			s.complete();
-			if (log.isTraceEnabled()) {
-				log.trace(System.lineSeparator() + StopwatchXmlFmtUtils.dumpXML(s));
-			}
-		});
 	}
 }

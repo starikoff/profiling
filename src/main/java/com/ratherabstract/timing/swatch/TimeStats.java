@@ -2,12 +2,28 @@ package com.ratherabstract.timing.swatch;
 
 public class TimeStats {
 
-	public long[] counts = new long[16];
-	public long[] sums = new long[16];
+	private static final int SIZE = 12;
+
+	public long[] counts = new long[SIZE];
+	public long[] sums = new long[SIZE];
+
+	private boolean untrusted = false;
 
 	public void ingest(long valueNS) {
-		long upper = 1; // 1 ns
-		for (int i = 0; i < counts.length - 1; i++) {
+		if (valueNS < 1000) {
+			counts[2]++;
+			sums[2] += valueNS;
+			if (!untrusted && valueNS < 100) {
+				untrusted = true;
+			}
+		} else {
+			slowestPath(valueNS);
+		}
+	}
+
+	private void slowestPath(long valueNS) {
+		long upper = 10_000; // 1-10 us
+		for (int i = 3; i < SIZE - 1; i++) {
 			if (valueNS < upper) {
 				counts[i]++;
 				sums[i] += valueNS;
@@ -15,26 +31,26 @@ public class TimeStats {
 			}
 			upper *= 10;
 		}
-		counts[counts.length - 1]++;
-		sums[counts.length - 1] += valueNS;
+		counts[SIZE - 1]++;
+		sums[SIZE - 1] += valueNS;
 	}
 
-	public int minIdx() {
-		for (int i = 0; i < counts.length; i++) {
-			if (counts[i] > 0) {
-				return i;
+	public void ingest(long valueNS, long count) {
+		long oneRunNS = valueNS / count;
+		long upper = 10; // 1-10 ns
+		for (int i = 0; i < SIZE - 1; i++) {
+			if (oneRunNS < upper) {
+				counts[i] += count;
+				sums[i] += valueNS;
+				return;
 			}
+			upper *= 10;
 		}
-		return -1;
+		counts[SIZE - 1] += count;
+		sums[SIZE - 1] += valueNS;
 	}
 
-	public int maxIdx() {
-		for (int i = counts.length - 1; i >= 0; i--) {
-			if (counts[i] > 0) {
-				return i;
-			}
-		}
-		return -1;
+	public boolean isUntrusted() {
+		return untrusted;
 	}
-
 }

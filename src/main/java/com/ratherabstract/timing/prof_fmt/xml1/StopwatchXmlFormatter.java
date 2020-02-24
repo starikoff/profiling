@@ -1,9 +1,8 @@
 package com.ratherabstract.timing.prof_fmt.xml1;
 
-import com.ratherabstract.timing.swatch.StopwatchNode;
-import com.ratherabstract.timing.swatch_fmt.StopwatchFmtUtils;
-import com.ratherabstract.timing.swatch_fmt.StopwatchXmlFmtUtils;
 import com.ratherabstract.timing.prof_fmt.StopwatchFormatter;
+import com.ratherabstract.timing.swatch.StopwatchNode;
+import com.ratherabstract.timing.swatch_fmt.StopwatchXmlFmtUtils;
 
 public class StopwatchXmlFormatter extends StopwatchFormatter {
 
@@ -18,14 +17,14 @@ public class StopwatchXmlFormatter extends StopwatchFormatter {
 
 	@Override
 	public void enteredNode(StopwatchNode node, StringBuilder sb) {
-		StopwatchXmlFmtUtils.startXML(StopwatchFmtUtils.prefix(" ", level), node, sb, rootNS);
+		StopwatchXmlFmtUtils.startXML(" ".repeat(level), node, sb, rootNS);
 		level++;
 	}
 
 	@Override
 	public void exitedNode(StopwatchNode node, StringBuilder sb) {
 		level--;
-		StopwatchXmlFmtUtils.endXML(StopwatchFmtUtils.prefix(" ", level), node, sb);
+		StopwatchXmlFmtUtils.endXML(" ".repeat(level), node, sb);
 	}
 
 	@Override

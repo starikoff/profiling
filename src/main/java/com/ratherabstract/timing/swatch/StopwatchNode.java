@@ -56,7 +56,7 @@ public class StopwatchNode {
 		this.durationOuterNS += deltaOuterNS;
 		startedInnerNS = 0;
 		startedOuterNS = 0;
-		timeStats.ingest(deltaOuterNS);
+		timeStats.ingest(deltaInnerNS);
 		return parent;
 	}
 

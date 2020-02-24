@@ -1,9 +1,9 @@
 package com.ratherabstract.timing.prof_fmt.plain1;
 
+import com.ratherabstract.timing.prof_fmt.StopwatchFormatter;
 import com.ratherabstract.timing.swatch.StopwatchNode;
 import com.ratherabstract.timing.swatch_fmt.StopwatchFmtUtils;
 import com.ratherabstract.timing.swatch_fmt.TimeStatsFmtUtils;
-import com.ratherabstract.timing.prof_fmt.StopwatchFormatter;
 
 public class StopwatchPlainFormatter extends StopwatchFormatter {
 
@@ -28,7 +28,7 @@ public class StopwatchPlainFormatter extends StopwatchFormatter {
 	protected void enteredNode(StopwatchNode node, StringBuilder sb) {
 		long coveredNS = 0;
 		for (StopwatchNode child : node.children.values()) {
-			coveredNS += child.durationInnerNS;
+			coveredNS += child.durationOuterNS;
 		}
 
 		String template = "%s%-64s | %12s | %-12s | %16d | %s |";
@@ -45,9 +45,8 @@ public class StopwatchPlainFormatter extends StopwatchFormatter {
 			}
 		}
 
-		String statsStr = TimeStatsFmtUtils.format(node.timeStats);
-		if (statsStr != null) {
-			template += " [time stats: " + statsStr + "]";
+		if (TimeStatsFmtUtils.nonZeroBuckets(node.timeStats) > 1) {
+			template += " [time stats: " + TimeStatsFmtUtils.format(node.timeStats) + "]";
 		}
 
 		if (node.realInvocations != node.invocations) {
@@ -57,7 +56,7 @@ public class StopwatchPlainFormatter extends StopwatchFormatter {
 		template += "%n";
 		sb.append(
 			String.format(template,
-				StopwatchFmtUtils.prefix(" ", level),
+				" ".repeat(level),
 				node.tag,
 				StopwatchFmtUtils.formatAsMs(node.durationInnerNS),
 				StopwatchFmtUtils.formatAsMs(coveredNS),

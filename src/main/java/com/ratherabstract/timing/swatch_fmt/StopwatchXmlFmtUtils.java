@@ -45,7 +45,7 @@ public class StopwatchXmlFmtUtils {
 	public static void startXML(String prefix, StopwatchNode node, StringBuilder sb, long rootNs) {
 		long coveredNS = 0;
 		for (StopwatchNode child : node.children.values()) {
-			coveredNS += child.durationInnerNS;
+			coveredNS += child.durationOuterNS;
 		}
 
 		String template =
@@ -68,9 +68,8 @@ public class StopwatchXmlFmtUtils {
 			template += " real_inv=\"" + node.realInvocations + "\"";
 		}
 
-		String statsStr = TimeStatsFmtUtils.format(node.timeStats);
-		if (statsStr != null) {
-			template += " time_stats=\"" + statsStr + "\"";
+		if (TimeStatsFmtUtils.nonZeroBuckets(node.timeStats) > 1) {
+			template += " time_stats=\"" + TimeStatsFmtUtils.format(node.timeStats) + "\"";
 		}
 
 		sb.append(
@@ -99,7 +98,7 @@ public class StopwatchXmlFmtUtils {
 	}
 
 	private static String sanitize(String tag) {
-		return tag.replaceAll("\"", "'");
+		return tag.replace("\"", "'");
 	}
 
 }
